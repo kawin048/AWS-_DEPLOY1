@@ -723,3 +723,56 @@ whiteboardButt.addEventListener('click', () => {
 cutCall.addEventListener('click', () => {
     location.href = '/';
 })
+
+// Function to handle file selection
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // Send the file to other peers in the room
+        sendFile(file);
+    }
+}
+
+// Function to send the file to other peers
+function sendFile(file) {
+    // Create a file reader
+    const reader = new FileReader();
+
+    // Read the file as data URL
+    reader.readAsDataURL(file);
+
+    // When the file is loaded
+    reader.onload = function (event) {
+        // Send the file data to the server
+        socket.emit('file', {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: event.target.result
+        });
+    };
+}
+
+// Function to handle file sharing button click
+function shareFile() {
+    // Trigger file input click programmatically
+    document.getElementById('customFile').click();
+}
+
+// Event listener for file input change
+document.getElementById('customFile').addEventListener('change', handleFileSelect);
+
+// Event listener for share button click
+document.querySelector('.share-attach').addEventListener('click', shareFile);
+
+// Socket listener to receive files from other peers
+socket.on('file', function (data) {
+    // Handle received file data
+    handleReceivedFile(data);
+});
+
+// Function to handle received file data
+function handleReceivedFile(data) {
+    // Here you can display or handle the received file data as needed
+    console.log('Received file:', data);
+}
